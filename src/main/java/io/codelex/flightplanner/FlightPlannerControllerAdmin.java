@@ -1,9 +1,13 @@
 package io.codelex.flightplanner;
 
 import io.codelex.flightplanner.domain.Flight;
+import io.codelex.flightplanner.request.FlightRequest;
+import io.codelex.flightplanner.response.FlightResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -15,20 +19,17 @@ public class FlightPlannerControllerAdmin {
         this.flightPlannerService = flightPlannerService;
     }
 
-    @PostMapping("/flights")
-    public void addFlight(@RequestBody Flight flight){
-        flightPlannerService.addFlight(flight);
+    @PutMapping("/flights")
+    @ResponseStatus(HttpStatus.CREATED)
+    public FlightResponse saveFlight(@Valid @RequestBody FlightRequest flight){
+       return flightPlannerService.saveFlight(flight);
     }
-    @GetMapping("/getflights")
-    public List<Flight> getFlightList() {
-        return flightPlannerService.getFlightList();
+    @GetMapping("/flights/{flightId}")
+    public Flight fetchFlight(@PathVariable("flightId") Integer id) {
+        return flightPlannerService.findFlightById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
-    @GetMapping("/flights/{id}")
-    public Optional<Flight> fetchFlight(@PathVariable("id") int id) {
-        return flightPlannerService.findFlightById(id);
-    }
-    @DeleteMapping("/flights/{id}")
-    public Optional<Flight> deleteFlight(@PathVariable("id") int id) {
+    @DeleteMapping("/flights/{flightId}")
+    public String deleteFlight(@PathVariable("flightId") String id) {
         return flightPlannerService.deleteFlight(id);
     }
 }
