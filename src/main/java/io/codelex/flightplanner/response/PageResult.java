@@ -1,4 +1,4 @@
-package io.codelex.flightplanner.domain;
+package io.codelex.flightplanner.response;
 
 import java.util.List;
 
