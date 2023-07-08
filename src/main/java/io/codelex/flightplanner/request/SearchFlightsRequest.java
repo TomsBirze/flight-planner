@@ -1,10 +1,19 @@
 package io.codelex.flightplanner.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 
 public class SearchFlightsRequest {
+    @NotNull
+    @NotEmpty
     private String from;
+    @NotNull
+    @NotEmpty
     private String to;
+    @NotNull
+    @NotEmpty
     private String departureDate;
 
     public SearchFlightsRequest(String from, String to, String departureDate) {
