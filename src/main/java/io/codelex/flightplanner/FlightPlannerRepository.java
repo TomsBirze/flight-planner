@@ -59,6 +59,7 @@ public class FlightPlannerRepository {
 
     public synchronized void clearFlights() {
         flightList.clear();
+        allAirports.clear();
     }
 
 }
