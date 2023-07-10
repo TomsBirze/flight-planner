@@ -1,6 +1,6 @@
 package io.codelex.flightplanner;
 
-import io.codelex.flightplanner.configuration.CustomFormater;
+import io.codelex.flightplanner.configuration.CustomFormatter;
 import io.codelex.flightplanner.configuration.FlightRequestValidator;
 import io.codelex.flightplanner.domain.Flight;
 import io.codelex.flightplanner.request.FlightRequest;
@@ -26,8 +26,8 @@ public class FlightPlannerService {
 public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
     flightRequestValidator.validateFlightRequest(flightRequest);
 
-    LocalDateTime departureDateTime = CustomFormater.formatStringToDateTime(flightRequest.getDepartureTime());
-    LocalDateTime arrivalDateTime = CustomFormater.formatStringToDateTime(flightRequest.getArrivalTime());
+    LocalDateTime departureDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getDepartureTime());
+    LocalDateTime arrivalDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getArrivalTime());
 
     int endingId = flightPlannerRepository.getFlights().stream()
             .mapToInt(Flight::getId)
@@ -44,7 +44,7 @@ public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
             newFlightId
     );
 //  Check for existing flight.
-    Optional<Flight> existingFlight = flightPlannerRepository.findFlightById(newFlightId);
+    Optional<Flight> existingFlight = findFlightById(newFlightId);
     if (existingFlight.isPresent()) {
         throw new ResponseStatusException(HttpStatus.CONFLICT, "Flight with the same ID already exists");
     }
@@ -53,7 +53,7 @@ public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
 }
 
     public synchronized String deleteFlight(String flightId) {
-        Optional<Flight> existingFlight = flightPlannerRepository.findFlightById(Integer.parseInt(flightId));
+        Optional<Flight> existingFlight = findFlightById(Integer.parseInt(flightId));
         if (existingFlight.isPresent()) {
             flightPlannerRepository.deleteFlight(flightId);
             return "Flight with ID " + flightId + " has been deleted.";
@@ -61,6 +61,7 @@ public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
             throw new ResponseStatusException(HttpStatus.OK, "Flight with ID " + flightId + " not found.");
         }
     }
+
     public synchronized Optional<Flight> findFlightById(Integer id) {
         return flightPlannerRepository.getFlights()
                 .stream()

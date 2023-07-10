@@ -1,10 +1,14 @@
 package io.codelex.flightplanner.configuration;
 
+import io.codelex.flightplanner.domain.Airport;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class CustomFormater {
+public class CustomFormatter {
+
+
 
     private static final String dateTimePattern = "yyyy-MM-dd HH:mm";
     private static final String datePattern = "yyyy-MM-dd";
