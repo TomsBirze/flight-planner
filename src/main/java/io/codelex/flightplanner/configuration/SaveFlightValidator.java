@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class FlightRequestValidator {
+public class SaveFlightValidator {
     private final FlightPlannerRepository flightPlannerRepository;
 
-    public FlightRequestValidator(FlightPlannerRepository flightPlannerRepository) {
+    public SaveFlightValidator(FlightPlannerRepository flightPlannerRepository) {
         this.flightPlannerRepository = flightPlannerRepository;
     }
     public void validateFlightRequest(FlightRequest flightRequest) {

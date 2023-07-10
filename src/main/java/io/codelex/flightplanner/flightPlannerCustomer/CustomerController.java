@@ -2,13 +2,13 @@ package io.codelex.flightplanner.flightPlannerCustomer;
 
 import io.codelex.flightplanner.domain.Airport;
 import io.codelex.flightplanner.domain.Flight;
+import io.codelex.flightplanner.errorHandling.FlightNotFoundException;
 import io.codelex.flightplanner.response.FlightResponse;
 import io.codelex.flightplanner.response.PageResult;
 import io.codelex.flightplanner.request.SearchFlightsRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -27,11 +27,14 @@ public class CustomerController {
 
     @GetMapping("/flights/{flightId}")
     public FlightResponse findFlightById(@PathVariable("flightId") Integer id) {
-        return customerService.findFlightById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return customerService.findFlightById(id)
+                .orElseThrow(() -> new FlightNotFoundException("Flight not found for ID: " + id));
     }
+
     @GetMapping("/airports")
+    @ResponseStatus(HttpStatus.OK)
     public List<Airport> searchAirports(@RequestParam String search) {
-        return customerService.searchAirports(search);
+        return customerService.searchAirports(search.trim().toLowerCase());
     }
 }
 

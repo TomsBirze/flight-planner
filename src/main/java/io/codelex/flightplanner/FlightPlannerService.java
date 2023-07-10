@@ -1,7 +1,7 @@
 package io.codelex.flightplanner;
 
 import io.codelex.flightplanner.configuration.CustomFormatter;
-import io.codelex.flightplanner.configuration.FlightRequestValidator;
+import io.codelex.flightplanner.configuration.SaveFlightValidator;
 import io.codelex.flightplanner.domain.Flight;
 import io.codelex.flightplanner.request.FlightRequest;
 import io.codelex.flightplanner.response.FlightResponse;
@@ -15,16 +15,16 @@ import java.util.Optional;
 @Service
 public class FlightPlannerService {
     private final FlightPlannerRepository flightPlannerRepository;
-    private final FlightRequestValidator flightRequestValidator;
+    private final SaveFlightValidator saveFlightValidator;
 
-    public FlightPlannerService(FlightPlannerRepository flightPlannerRepository, FlightRequestValidator flightRequestValidator) {
+    public FlightPlannerService(FlightPlannerRepository flightPlannerRepository, SaveFlightValidator saveFlightValidator) {
         this.flightPlannerRepository = flightPlannerRepository;
-        this.flightRequestValidator = flightRequestValidator;
+        this.saveFlightValidator = saveFlightValidator;
     }
 
 //      Admin
 public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
-    flightRequestValidator.validateFlightRequest(flightRequest);
+    saveFlightValidator.validateFlightRequest(flightRequest);
 
     LocalDateTime departureDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getDepartureTime());
     LocalDateTime arrivalDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getArrivalTime());

@@ -1,7 +1,7 @@
 package io.codelex.flightplanner.flightPlannerCustomer;
 
 import io.codelex.flightplanner.FlightPlannerRepository;
-import io.codelex.flightplanner.configuration.CustomerRequestValidator;
+import io.codelex.flightplanner.configuration.SearchFlightsValidator;
 import io.codelex.flightplanner.domain.Airport;
 import io.codelex.flightplanner.domain.Flight;
 import io.codelex.flightplanner.response.FlightResponse;
@@ -22,17 +22,17 @@ import java.util.stream.Collectors;
 public class CustomerService {
     private static final Logger logger = LoggerFactory.getLogger(FlightPlannerRepository.class.getName());
     private final FlightPlannerRepository flightPlannerRepository;
-    private final CustomerRequestValidator customerRequestValidator;
+    private final SearchFlightsValidator searchFlightsValidator;
 
-    public CustomerService(FlightPlannerRepository flightPlannerRepository, CustomerRequestValidator customerRequestValidator) {
+    public CustomerService(FlightPlannerRepository flightPlannerRepository, SearchFlightsValidator searchFlightsValidator) {
         this.flightPlannerRepository = flightPlannerRepository;
-        this.customerRequestValidator = customerRequestValidator;
+        this.searchFlightsValidator = searchFlightsValidator;
     }
     public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest request) {
         logger.info("Searching flights with request: " + request.toString());
         PageResult<Flight> result = new PageResult<>(0, 0, new ArrayList<>());
-        customerRequestValidator.validateNullFields(request);
-        customerRequestValidator.validateSameAirports(request.getFrom(), request.getTo());
+        searchFlightsValidator.validateNullFields(request);
+        searchFlightsValidator.validateSameAirports(request.getFrom(), request.getTo());
 
         DateTimeFormatter flightDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -74,14 +74,16 @@ public class CustomerService {
                     arrivalDateTime,
                     flight.getId()));
     }
-
     public synchronized List<Airport> searchAirports(String search) {
-        List<Airport> foundAirports = flightPlannerRepository
-                .getAllAirports()
-                .entrySet()
+        List<Airport> foundAirports = flightPlannerRepository.getAllAirports()
+                .values()
                 .stream()
-                .filter(entry -> entry.getKey().toLowerCase().trim().contains(search.toLowerCase().trim()))
-                .map(Map.Entry::getValue)
+                .filter(airport ->
+                        airport.getAirport().toLowerCase().contains(search)
+                                || airport.getCity().toLowerCase().contains(search)
+                                || airport.getCountry().toLowerCase().contains(search)
+                )
+                .map(airport -> new Airport(airport.getCountry(), airport.getCity(), airport.getAirport()))
                 .collect(Collectors.toList());
 
         logger.info("Search Airports: " + search + ", Found Airports: " + foundAirports);
