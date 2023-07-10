@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-public class CustomerRequestValidator {
+public class SearchFlightsValidator {
 
     public void validateSameAirports(String fromAirport, String toAirport) {
         if (fromAirport.equalsIgnoreCase(toAirport)) {

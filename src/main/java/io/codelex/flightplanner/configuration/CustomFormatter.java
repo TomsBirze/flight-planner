@@ -1,7 +1,5 @@
 package io.codelex.flightplanner.configuration;
 
-import io.codelex.flightplanner.domain.Airport;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
