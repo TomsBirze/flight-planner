@@ -11,11 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import io.codelex.flightplanner.configuration.CustomFormater;
+import io.codelex.flightplanner.configuration.CustomFormatter;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -27,31 +28,64 @@ public class CustomerService {
         this.flightPlannerRepository = flightPlannerRepository;
         this.customerRequestValidator = customerRequestValidator;
     }
-
-    public PageResult<Flight> searchFlights(SearchFlightsRequest request) {
+    public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest request) {
+        logger.info("Searching flights with request: " + request.toString());
+        PageResult<Flight> result = new PageResult<>(0, 0, new ArrayList<>());
         customerRequestValidator.validateNullFields(request);
         customerRequestValidator.validateSameAirports(request.getFrom(), request.getTo());
-        return flightPlannerRepository.searchFlights(request);
+
+        DateTimeFormatter flightDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        List<Flight> foundFlights = flightPlannerRepository.getFlights()
+                .stream()
+                .filter(fl -> request.getFrom().equals(fl.getFrom().getAirport()) &&
+                        request.getTo().equals(fl.getTo().getAirport()) &&
+                        fl.getDepartureTime().format(flightDateFormatter).equals(request.getDepartureDate()))
+                .collect(Collectors.toList());
+
+        logger.info("Found flights: " + foundFlights.toString());
+
+        result.setTotalItems(foundFlights.size());
+        result.setItems(foundFlights);
+        result.setPage(foundFlights.size() / 10);
+        return result;
     }
 
-    public FlightResponse findFlightById(Integer flightId) {
-        Optional<Flight> flightFromDatabase = flightPlannerRepository.findFlightById(flightId);
+    public synchronized Optional<FlightResponse> findFlightById(Integer flightId) {
+        Optional<Flight> flightFromDatabase = Optional.ofNullable(flightPlannerRepository
+                .getFlights()
+                .stream()
+                .filter(flight -> Objects.equals(flight.getId(), flightId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+
         logger.info("findFlightById() flightId: " + flightId + " found: " + flightFromDatabase);
-        if (flightFromDatabase.isPresent()) {
+
             Flight flight = flightFromDatabase.get();
 
-            String departureDateTime = CustomFormater.formatLocalDateTimeToString(flight.getDepartureTime());
-            String arrivalDateTime = CustomFormater.formatLocalDateTimeToString(flight.getArrivalTime());
+            String departureDateTime = CustomFormatter.formatLocalDateTimeToString(flight.getDepartureTime());
+            String arrivalDateTime = CustomFormatter.formatLocalDateTimeToString(flight.getArrivalTime());
 
-            return new FlightResponse(flight.getFrom(), flight.getTo(), flight.getCarrier(),
-                    departureDateTime, arrivalDateTime, flight.getId());
-
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Flight with ID " + flightId + " not found.");
-        }
+            return Optional.of(new FlightResponse(
+                    flight.getFrom(),
+                    flight.getTo(),
+                    flight.getCarrier(),
+                    departureDateTime,
+                    arrivalDateTime,
+                    flight.getId()));
     }
-    public List<Airport> searchAirports(String search) {
-        return flightPlannerRepository.searchAirports(search);
+
+    public synchronized List<Airport> searchAirports(String search) {
+        List<Airport> foundAirports = flightPlannerRepository
+                .getAllAirports()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().toLowerCase().trim().contains(search.toLowerCase().trim()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        logger.info("Search Airports: " + search + ", Found Airports: " + foundAirports);
+        return foundAirports;
     }
 
 }

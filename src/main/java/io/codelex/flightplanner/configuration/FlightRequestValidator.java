@@ -18,8 +18,8 @@ public class FlightRequestValidator {
         this.flightPlannerRepository = flightPlannerRepository;
     }
     public void validateFlightRequest(FlightRequest flightRequest) {
-        LocalDateTime departureDateTime = CustomFormater.formatStringToDateTime(flightRequest.getDepartureTime());
-        LocalDateTime arrivalDateTime = CustomFormater.formatStringToDateTime(flightRequest.getArrivalTime());
+        LocalDateTime departureDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getDepartureTime());
+        LocalDateTime arrivalDateTime = CustomFormatter.formatStringToDateTime(flightRequest.getArrivalTime());
 
         if (flightRequest.getFrom().getAirport().trim().equalsIgnoreCase(flightRequest.getTo().getAirport().trim())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Departure airport is the same as arrival.");
