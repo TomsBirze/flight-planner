@@ -13,6 +13,9 @@ public class PageResult<T> {
         this.items = items;
     }
 
+    public PageResult() {
+    }
+
     public int getPage() {
         return page;
     }
