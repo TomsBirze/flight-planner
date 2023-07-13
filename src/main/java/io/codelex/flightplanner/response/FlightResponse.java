@@ -28,6 +28,9 @@ public class FlightResponse {
         this.id = id;
     }
 
+    public FlightResponse() {
+    }
+
     public Airport getFrom() {
         return from;
     }
