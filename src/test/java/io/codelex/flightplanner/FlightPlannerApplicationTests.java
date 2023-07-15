@@ -31,9 +31,9 @@ class FlightPlannerApplicationTests {
     private MockMvc mvc;
 
     @Autowired
-    FlightPlannerControllerAdmin flightPlannerControllerAdmin;
+    AdminController adminController;
     @Autowired
-    FlightPlannerService flightPlannerService;
+    FlightInMemoryService flightInMemoryService;
     @Autowired
     FlightPlannerRepository flightPlannerRepository;
 
@@ -79,6 +79,6 @@ class FlightPlannerApplicationTests {
                 .andReturn();
         // Then
         assertTrue(flightPlannerRepository.getFlights().isEmpty());
-        assertTrue(flightPlannerRepository.getAllAirports().isEmpty());
+        assertTrue(flightPlannerRepository.getAirports().isEmpty());
     }
 }
