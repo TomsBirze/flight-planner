@@ -1,4 +1,4 @@
-package io.codelex.flightplanner.flightPlannerCustomer;
+package io.codelex.flightplanner;
 
 import io.codelex.flightplanner.domain.Airport;
 import io.codelex.flightplanner.domain.Flight;
@@ -15,26 +15,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class CustomerController {
-    private final CustomerService customerService;
+    private final FlightInMemoryService flightInMemoryService;
 
-    public CustomerController(CustomerService customerService) {
-        this.customerService = customerService;
+    public CustomerController(FlightInMemoryService flightInMemoryService) {
+        this.flightInMemoryService = flightInMemoryService;
     }
+
+
     @PostMapping("/flights/search")
     public @ResponseBody PageResult<Flight> searchFlights(@Valid @RequestBody SearchFlightsRequest request) {
-        return customerService.searchFlights(request);
+        return flightInMemoryService.searchFlights(request);
     }
 
     @GetMapping("/flights/{flightId}")
     public FlightResponse findFlightById(@PathVariable("flightId") Integer id) {
-        return customerService.findFlightById(id)
+        return flightInMemoryService.findFlightById(id)
                 .orElseThrow(() -> new FlightNotFoundException("Flight not found for ID: " + id));
     }
 
     @GetMapping("/airports")
     @ResponseStatus(HttpStatus.OK)
     public List<Airport> searchAirports(@RequestParam String search) {
-        return customerService.searchAirports(search.trim().toLowerCase());
+        return flightInMemoryService.searchAirports(search);
     }
 }
 
