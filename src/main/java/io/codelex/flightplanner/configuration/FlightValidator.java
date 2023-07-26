@@ -1,6 +1,6 @@
 package io.codelex.flightplanner.configuration;
 
-import io.codelex.flightplanner.FlightPlannerRepository;
+import io.codelex.flightplanner.FlightInMemoryRepository;
 import io.codelex.flightplanner.domain.Flight;
 import io.codelex.flightplanner.request.FlightRequest;
 import io.codelex.flightplanner.request.SearchFlightsRequest;
@@ -14,10 +14,10 @@ import java.util.List;
 
 @Service
 public class FlightValidator {
-    private final FlightPlannerRepository flightPlannerRepository;
+    private final FlightInMemoryRepository flightInMemoryRepository;
 
-    public FlightValidator(FlightPlannerRepository flightPlannerRepository) {
-        this.flightPlannerRepository = flightPlannerRepository;
+    public FlightValidator(FlightInMemoryRepository flightInMemoryRepository) {
+        this.flightInMemoryRepository = flightInMemoryRepository;
     }
     private final DateTimeFormatter departureTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final DateTimeFormatter arrivalTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -29,7 +29,7 @@ public class FlightValidator {
     }
 
     private void validateExistingFlight(FlightRequest flightRequest) {
-        List<Flight> flights = flightPlannerRepository.getFlights();
+        List<Flight> flights = flightInMemoryRepository.getFlights();
 
         LocalDateTime requestDepartureTime = LocalDateTime.parse(flightRequest.getDepartureTime(), departureTimeFormatter);
         LocalDateTime requestArrivalTime = LocalDateTime.parse(flightRequest.getArrivalTime(), arrivalTimeFormatter);

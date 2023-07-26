@@ -11,23 +11,23 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/admin-api")
 public class AdminController {
-    private final FlightInMemoryService flightInMemoryService;
+    private final FlightService flightService;
 
-    public AdminController(FlightInMemoryService flightInMemoryService) {
-        this.flightInMemoryService = flightInMemoryService;
+    public AdminController(FlightService flightService) {
+        this.flightService = flightService;
     }
 
     @PutMapping("/flights")
     @ResponseStatus(HttpStatus.CREATED)
     public FlightResponse saveFlight(@Valid @RequestBody FlightRequest flight){
-       return flightInMemoryService.saveFlight(flight);
+       return flightService.saveFlight(flight);
     }
     @GetMapping("/flights/{flightId}")
     public Flight fetchFlight(@PathVariable("flightId") Integer id) {
-        return flightInMemoryService.getFlightById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return flightService.getFlightById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
     @DeleteMapping("/flights/{flightId}")
     public void deleteFlight(@PathVariable("flightId") Integer id) {
-        flightInMemoryService.deleteFlight(id);
+        flightService.deleteFlight(id);
     }
 }

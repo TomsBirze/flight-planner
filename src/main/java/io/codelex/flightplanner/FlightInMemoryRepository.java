@@ -11,11 +11,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Repository
-public class FlightPlannerRepository {
+public class FlightInMemoryRepository {
     private final List<Flight> flightList;
     private final List<Airport> airportList;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    public FlightPlannerRepository(List<Flight> flightList, List<Airport> airportList) {
+    public FlightInMemoryRepository(List<Flight> flightList, List<Airport> airportList) {
         this.flightList = flightList;
         this.airportList = airportList;
     }

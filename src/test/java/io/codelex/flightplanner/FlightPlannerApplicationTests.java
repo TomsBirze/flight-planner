@@ -35,7 +35,7 @@ class FlightPlannerApplicationTests {
     @Autowired
     FlightInMemoryService flightInMemoryService;
     @Autowired
-    FlightPlannerRepository flightPlannerRepository;
+    FlightInMemoryRepository flightInMemoryRepository;
 
     static ObjectMapper jsonObjectMapper = new ObjectMapper();
 
@@ -78,7 +78,7 @@ class FlightPlannerApplicationTests {
                 .andExpect(status().isOk())
                 .andReturn();
         // Then
-        assertTrue(flightPlannerRepository.getFlights().isEmpty());
-        assertTrue(flightPlannerRepository.getAirports().isEmpty());
+        assertTrue(flightInMemoryRepository.getFlights().isEmpty());
+        assertTrue(flightInMemoryRepository.getAirports().isEmpty());
     }
 }

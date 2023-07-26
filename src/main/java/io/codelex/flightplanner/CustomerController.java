@@ -15,28 +15,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class CustomerController {
-    private final FlightInMemoryService flightInMemoryService;
+    private final FlightService flightService;
 
-    public CustomerController(FlightInMemoryService flightInMemoryService) {
-        this.flightInMemoryService = flightInMemoryService;
+    public CustomerController(FlightService flightService) {
+        this.flightService = flightService;
     }
 
 
     @PostMapping("/flights/search")
     public @ResponseBody PageResult<Flight> searchFlights(@Valid @RequestBody SearchFlightsRequest request) {
-        return flightInMemoryService.searchFlights(request);
+        return flightService.searchFlights(request);
     }
 
     @GetMapping("/flights/{flightId}")
     public FlightResponse findFlightById(@PathVariable("flightId") Integer id) {
-        return flightInMemoryService.findFlightById(id)
+        return flightService.findFlightById(id)
                 .orElseThrow(() -> new FlightNotFoundException("Flight not found for ID: " + id));
     }
 
     @GetMapping("/airports")
     @ResponseStatus(HttpStatus.OK)
     public List<Airport> searchAirports(@RequestParam String search) {
-        return flightInMemoryService.searchAirports(search);
+        return flightService.searchAirports(search);
     }
 }
 

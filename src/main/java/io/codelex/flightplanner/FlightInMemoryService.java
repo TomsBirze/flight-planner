@@ -19,22 +19,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
-public class FlightInMemoryService {
-    private final FlightPlannerRepository flightPlannerRepository;
+public class FlightInMemoryService implements FlightService {
+    private final FlightInMemoryRepository flightInMemoryRepository;
     private final FlightValidator flightValidator;
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public FlightInMemoryService(FlightPlannerRepository flightPlannerRepository, FlightValidator flightValidator) {
-        this.flightPlannerRepository = flightPlannerRepository;
+    public FlightInMemoryService(FlightInMemoryRepository flightInMemoryRepository, FlightValidator flightValidator) {
+        this.flightInMemoryRepository = flightInMemoryRepository;
         this.flightValidator = flightValidator;
-
     }
 
     public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
         flightValidator.validateFlight(flightRequest);
 
-        int endingId = flightPlannerRepository.getFlights().stream()
+        int endingId = flightInMemoryRepository.getFlights().stream()
             .mapToInt(Flight::getId)
             .max()
             .orElse(0);
@@ -49,37 +47,37 @@ public class FlightInMemoryService {
             newFlightId
         );
 
-    flightPlannerRepository.getAirports().add(newFlight.getFrom());
-    flightPlannerRepository.getAirports().add(newFlight.getTo());
+    flightInMemoryRepository.getAirports().add(newFlight.getFrom());
+    flightInMemoryRepository.getAirports().add(newFlight.getTo());
 
-    return flightPlannerRepository.saveFlight(newFlight);
+    return flightInMemoryRepository.saveFlight(newFlight);
 }
 
     public synchronized void deleteFlight(Integer flightId) {
         Optional<Flight> existingFlight = getFlightById(flightId);
         if (existingFlight.isPresent()) {
-            flightPlannerRepository.deleteFlight(String.valueOf(flightId));
+            flightInMemoryRepository.deleteFlight(String.valueOf(flightId));
         } else {
             throw new ResponseStatusException(HttpStatus.OK);
         }
     }
 
     public synchronized Optional<Flight> getFlightById(Integer id) {
-        return flightPlannerRepository.getFlights()
+        return flightInMemoryRepository.getFlights()
                 .stream()
                 .filter(flight -> flight.getId().equals(id))
                 .findFirst();
     }
     public void clearFlights() {
-        flightPlannerRepository.clearFlights();
+        flightInMemoryRepository.clearFlights();
     }
 
 //    Customer Service
-public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest request) {
+    public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest request) {
     flightValidator.validateNullFields(request);
     flightValidator.validateSameAirports(request.getFrom(), request.getTo());
 
-    List<Flight> foundFlights = flightPlannerRepository.getFlights()
+    List<Flight> foundFlights = flightInMemoryRepository.getFlights()
             .stream()
             .filter(fl -> isFlightMatchingRequest(fl, request))
             .toList();
@@ -97,14 +95,14 @@ public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest reques
     return new PageResult<>(totalItems, totalPages, paginatedFlights);
 }
 
-    private boolean isFlightMatchingRequest(Flight flight, SearchFlightsRequest request) {
+    public boolean isFlightMatchingRequest(Flight flight, SearchFlightsRequest request) {
         LocalDate requestDepartureDate = LocalDate.parse(request.getDepartureDate());
         return flight.getFrom().getAirport().equals(request.getFrom())
                 && flight.getTo().getAirport().equals(request.getTo())
                 && flight.getDepartureTime().toLocalDate().equals(requestDepartureDate);
     }
     public synchronized Optional<FlightResponse> findFlightById(Integer flightId) {
-        Optional<Flight> flightFromDatabase = Optional.ofNullable(flightPlannerRepository
+        Optional<Flight> flightFromDatabase = Optional.ofNullable(flightInMemoryRepository
                 .getFlights()
                 .stream()
                 .filter(flight -> Objects.equals(flight.getId(), flightId))
@@ -125,7 +123,7 @@ public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest reques
     public synchronized List<Airport> searchAirports(String search) {
         String formatSearch = search.trim().toLowerCase();
 
-        return flightPlannerRepository.getAirports()
+        return flightInMemoryRepository.getAirports()
                 .stream()
                 .filter(airport ->
                         airport.getAirport().toLowerCase().contains(formatSearch)
