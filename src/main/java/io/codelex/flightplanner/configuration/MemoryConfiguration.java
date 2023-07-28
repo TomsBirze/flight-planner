@@ -1,9 +1,6 @@
 package io.codelex.flightplanner.configuration;
 
-import io.codelex.flightplanner.FlightInDatabaseService;
-import io.codelex.flightplanner.FlightInMemoryRepository;
-import io.codelex.flightplanner.FlightInMemoryService;
-import io.codelex.flightplanner.FlightService;
+import io.codelex.flightplanner.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +15,7 @@ public class MemoryConfiguration {
     }
     @Bean
     @ConditionalOnProperty(prefix="flight", name="service.version", havingValue = "database")
-    public FlightService getDatabaseVersion() {
-            return new FlightInDatabaseService();
+    public FlightService getDatabaseVersion(FlightInDatabaseRepository FlightInDatabaseRepository, FlightValidator flightValidator) {
+            return new FlightInDatabaseService(FlightInDatabaseRepository, flightValidator);
         }
 }
