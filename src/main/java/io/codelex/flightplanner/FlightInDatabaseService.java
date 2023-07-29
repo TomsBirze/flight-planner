@@ -31,7 +31,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public FlightResponse saveFlight(FlightRequest flightRequest) {
+    public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
         flightValidator.validateFlight(flightRequest);
 
         Airport fromAirport = flightRequest.getFrom();
@@ -81,6 +81,7 @@ public class FlightInDatabaseService implements FlightService {
     @Override
     public void clearFlights() {
     flightInDatabaseRepository.deleteAll();
+    airportInDatabaseRepository.deleteAll();
     }
 
     @Override
