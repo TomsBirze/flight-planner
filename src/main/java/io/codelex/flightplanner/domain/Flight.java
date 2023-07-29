@@ -8,10 +8,10 @@ import java.util.Objects;
 @Entity
 public class Flight {
     @ManyToOne
-    @JoinColumn(name = "from_airport_id")
+    @JoinColumn(name = "from_airport", referencedColumnName = "airport")
     private Airport from;
     @ManyToOne
-    @JoinColumn(name = "to_airport_id")
+    @JoinColumn(name = "to_airport", referencedColumnName = "airport")
     private Airport to;
 
     private String carrier;

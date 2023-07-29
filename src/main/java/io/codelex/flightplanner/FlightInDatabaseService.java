@@ -20,20 +20,27 @@ import java.util.stream.Collectors;
 public class FlightInDatabaseService implements FlightService {
 
     private final FlightInDatabaseRepository flightInDatabaseRepository;
+    private final AirportInDatabaseRepository airportInDatabaseRepository;
     private final FlightValidator flightValidator;
 
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    public FlightInDatabaseService(FlightInDatabaseRepository flightInDatabaseRepository, FlightValidator flightValidator){
+    public FlightInDatabaseService(FlightInDatabaseRepository flightInDatabaseRepository, AirportInDatabaseRepository airportInDatabaseRepository, FlightValidator flightValidator){
         this.flightInDatabaseRepository = flightInDatabaseRepository;
+        this.airportInDatabaseRepository= airportInDatabaseRepository;
         this.flightValidator = flightValidator;
     }
 
     @Override
-    public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
+    public FlightResponse saveFlight(FlightRequest flightRequest) {
         flightValidator.validateFlight(flightRequest);
 
         Airport fromAirport = flightRequest.getFrom();
+        airportInDatabaseRepository.save(fromAirport);
+
         Airport toAirport = flightRequest.getTo();
+        airportInDatabaseRepository.save(toAirport);
+
+        flightValidator.validateExistingFlightInDatabase(flightRequest);
 
         Flight newFlight = new Flight(
                 fromAirport,
@@ -121,7 +128,7 @@ public class FlightInDatabaseService implements FlightService {
 
     @Override
     public synchronized List<Airport> searchAirports(String search) {
-        String formatSearch = search.trim().toLowerCase();
-        return flightInDatabaseRepository.searchByString(formatSearch);
+        String formatSearch = "%" + search.trim().toLowerCase() + "%";
+        return airportInDatabaseRepository.searchByString(formatSearch);
     }
 }

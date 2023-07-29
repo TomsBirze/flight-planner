@@ -3,8 +3,7 @@
 --changeset toms:1
 
 CREATE TABLE airport (
-                         airport_id SERIAL PRIMARY KEY,
-                         airport VARCHAR(3) NOT NULL UNIQUE,
-                         country VARCHAR(100) NOT NULL,
-                         city VARCHAR(100) NOT NULL
+                         airport VARCHAR(3) PRIMARY KEY,
+                         country VARCHAR(100),
+                         city VARCHAR(100)
 );

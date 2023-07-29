@@ -15,7 +15,7 @@ public class MemoryConfiguration {
     }
     @Bean
     @ConditionalOnProperty(prefix="flight", name="service.version", havingValue = "database")
-    public FlightService getDatabaseVersion(FlightInDatabaseRepository FlightInDatabaseRepository, FlightValidator flightValidator) {
-            return new FlightInDatabaseService(FlightInDatabaseRepository, flightValidator);
+    public FlightService getDatabaseVersion(FlightInDatabaseRepository FlightInDatabaseRepository, AirportInDatabaseRepository airportInDatabaseRepository, FlightValidator flightValidator) {
+            return new FlightInDatabaseService(FlightInDatabaseRepository, airportInDatabaseRepository, flightValidator);
         }
 }

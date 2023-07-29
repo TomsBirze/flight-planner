@@ -3,12 +3,12 @@
 --changeset toms:2
 
 CREATE TABLE flight (
-    id SERIAL PRIMARY KEY,
-    from_airport_id INT NOT NULL,
-    to_airport_id INT NOT NULL,
-    carrier VARCHAR(100) NOT NULL,
-    departure_time TIMESTAMP NOT NULL,
-    arrival_time TIMESTAMP NOT NULL,
-    FOREIGN KEY (from_airport_id) REFERENCES airport (airport_id),
-    FOREIGN KEY (to_airport_id) REFERENCES airport (airport_id)
+                        id SERIAL PRIMARY KEY,
+                        from_airport VARCHAR(3),
+                        to_airport VARCHAR(3),
+                        carrier VARCHAR(100),
+                        departure_time TIMESTAMP,
+                        arrival_time TIMESTAMP,
+                        FOREIGN KEY (from_airport) REFERENCES airport (airport),
+                        FOREIGN KEY (to_airport) REFERENCES airport (airport)
 );

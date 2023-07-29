@@ -11,9 +11,7 @@ import java.util.Objects;
 
 @Entity
 public class Airport {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer airport_id;
+
     @NotNull
     @NotEmpty
     private String country;
@@ -23,6 +21,7 @@ public class Airport {
 
     @NotNull
     @NotEmpty
+    @Id
     private String airport;
 
     public Airport(String country, String city, String airport) {
