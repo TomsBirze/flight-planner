@@ -33,7 +33,7 @@ class FlightPlannerApplicationTests {
     @Autowired
     AdminController adminController;
     @Autowired
-    FlightInMemoryService flightInMemoryService;
+    FlightService flightService;
     @Autowired
     FlightInMemoryRepository flightInMemoryRepository;
 

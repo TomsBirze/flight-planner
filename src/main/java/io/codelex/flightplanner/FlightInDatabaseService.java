@@ -7,6 +7,7 @@ import io.codelex.flightplanner.request.FlightRequest;
 import io.codelex.flightplanner.request.SearchFlightsRequest;
 import io.codelex.flightplanner.response.FlightResponse;
 import io.codelex.flightplanner.response.PageResult;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Transactional
 public class FlightInDatabaseService implements FlightService {
 
     private final FlightInDatabaseRepository flightInDatabaseRepository;
@@ -31,7 +33,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public synchronized FlightResponse saveFlight(FlightRequest flightRequest) {
+    public FlightResponse saveFlight(FlightRequest flightRequest) {
         flightValidator.validateFlight(flightRequest);
 
         Airport fromAirport = flightRequest.getFrom();
@@ -64,7 +66,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public synchronized void deleteFlight(Integer flightId) {
+    public void deleteFlight(Integer flightId) {
         Optional<Flight> existingFlight = flightInDatabaseRepository.findById(flightId);
         if (existingFlight.isPresent()) {
             flightInDatabaseRepository.deleteById(flightId);
@@ -74,7 +76,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public synchronized Optional<Flight> getFlightById(Integer id) {
+    public Optional<Flight> getFlightById(Integer id) {
         return flightInDatabaseRepository.findById(id);
     }
 
@@ -85,7 +87,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public synchronized PageResult<Flight> searchFlights(SearchFlightsRequest request) {
+    public PageResult<Flight> searchFlights(SearchFlightsRequest request) {
         flightValidator.validateNullFields(request);
         flightValidator.validateSameAirports(request.getFrom(), request.getTo());
 
@@ -93,6 +95,7 @@ public class FlightInDatabaseService implements FlightService {
                 .stream()
                 .filter(fl -> isFlightMatchingRequest(fl, request))
                 .toList();
+
 
         int totalItems = foundFlights.size();
         int pageSize = 5;
@@ -114,7 +117,7 @@ public class FlightInDatabaseService implements FlightService {
 
 
     @Override
-    public synchronized Optional<FlightResponse> findFlightById(Integer flightId) {
+    public Optional<FlightResponse> findFlightById(Integer flightId) {
         Optional<Flight> flightOptional = flightInDatabaseRepository.findById(flightId);
 
         return Optional.ofNullable(flightOptional.map(flight -> new FlightResponse(
@@ -128,7 +131,7 @@ public class FlightInDatabaseService implements FlightService {
     }
 
     @Override
-    public synchronized List<Airport> searchAirports(String search) {
+    public List<Airport> searchAirports(String search) {
         String formatSearch = "%" + search.trim().toLowerCase() + "%";
         return airportInDatabaseRepository.searchByString(formatSearch);
     }

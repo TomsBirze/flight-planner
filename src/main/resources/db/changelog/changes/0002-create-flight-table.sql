@@ -4,8 +4,8 @@
 
 CREATE TABLE flight (
                         id SERIAL PRIMARY KEY,
-                        from_airport VARCHAR(3),
-                        to_airport VARCHAR(3),
+                        from_airport VARCHAR(100),
+                        to_airport VARCHAR(100),
                         carrier VARCHAR(100),
                         departure_time TIMESTAMP,
                         arrival_time TIMESTAMP,
