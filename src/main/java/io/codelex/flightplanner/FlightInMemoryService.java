@@ -8,7 +8,6 @@ import io.codelex.flightplanner.request.SearchFlightsRequest;
 import io.codelex.flightplanner.response.FlightResponse;
 import io.codelex.flightplanner.response.PageResult;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
