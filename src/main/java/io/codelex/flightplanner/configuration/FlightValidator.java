@@ -33,35 +33,30 @@ public class FlightValidator {
         validateArrivalTime(flightRequest);
     }
 
-    private void validateExistingFlight(FlightRequest flightRequest) {
-        List<Flight> flights = flightInMemoryRepository.getFlights();
-
+    private boolean checkIfFlightExists(List<Flight> flights, FlightRequest flightRequest) {
         LocalDateTime requestDepartureTime = LocalDateTime.parse(flightRequest.getDepartureTime(), departureTimeFormatter);
         LocalDateTime requestArrivalTime = LocalDateTime.parse(flightRequest.getArrivalTime(), arrivalTimeFormatter);
 
-        boolean flightAlreadyExists = flights.stream()
+        return flights.stream()
                 .anyMatch(flight -> flight.getFrom().equals(flightRequest.getFrom()) &&
                         flight.getTo().equals(flightRequest.getTo()) &&
                         flight.getCarrier().equals(flightRequest.getCarrier()) &&
                         flight.getDepartureTime().equals(requestDepartureTime) &&
                         flight.getArrivalTime().equals(requestArrivalTime));
+    }
+
+    private void validateExistingFlight(FlightRequest flightRequest) {
+        List<Flight> flights = flightInMemoryRepository.getFlights();
+        boolean flightAlreadyExists = checkIfFlightExists(flights, flightRequest);
 
         if (flightAlreadyExists) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Invalid request.");
         }
     }
+
     public void validateExistingFlightInDatabase(FlightRequest flightRequest) {
         List<Flight> flights = flightInDatabaseRepository.findAll();
-
-        LocalDateTime requestDepartureTime = LocalDateTime.parse(flightRequest.getDepartureTime(), departureTimeFormatter);
-        LocalDateTime requestArrivalTime = LocalDateTime.parse(flightRequest.getArrivalTime(), arrivalTimeFormatter);
-
-        boolean flightAlreadyExists = flights.stream()
-                .anyMatch(flight -> flight.getFrom().equals(flightRequest.getFrom()) &&
-                        flight.getTo().equals(flightRequest.getTo()) &&
-                        flight.getCarrier().equals(flightRequest.getCarrier()) &&
-                        flight.getDepartureTime().equals(requestDepartureTime) &&
-                        flight.getArrivalTime().equals(requestArrivalTime));
+        boolean flightAlreadyExists = checkIfFlightExists(flights, flightRequest);
 
         if (flightAlreadyExists) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Invalid request.");
