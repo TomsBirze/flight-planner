@@ -1,6 +1,7 @@
 package io.codelex.flightplanner.configuration;
 
-import io.codelex.flightplanner.FlightPlannerRepository;
+import io.codelex.flightplanner.FlightInDatabaseRepository;
+import io.codelex.flightplanner.FlightInMemoryRepository;
 import io.codelex.flightplanner.domain.Flight;
 import io.codelex.flightplanner.request.FlightRequest;
 import io.codelex.flightplanner.request.SearchFlightsRequest;
@@ -14,13 +15,17 @@ import java.util.List;
 
 @Service
 public class FlightValidator {
-    private final FlightPlannerRepository flightPlannerRepository;
+    private final FlightInMemoryRepository flightInMemoryRepository;
+    private final FlightInDatabaseRepository flightInDatabaseRepository;
 
-    public FlightValidator(FlightPlannerRepository flightPlannerRepository) {
-        this.flightPlannerRepository = flightPlannerRepository;
+    public FlightValidator(FlightInMemoryRepository flightInMemoryRepository, FlightInDatabaseRepository flightInDatabaseRepository) {
+        this.flightInMemoryRepository = flightInMemoryRepository;
+        this.flightInDatabaseRepository = flightInDatabaseRepository;
     }
     private final DateTimeFormatter departureTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final DateTimeFormatter arrivalTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+
 
     public void validateFlight(FlightRequest flightRequest) {
         validateDepartureAirport(flightRequest);
@@ -28,23 +33,36 @@ public class FlightValidator {
         validateArrivalTime(flightRequest);
     }
 
-    private void validateExistingFlight(FlightRequest flightRequest) {
-        List<Flight> flights = flightPlannerRepository.getFlights();
-
+    private boolean checkIfFlightExists(List<Flight> flights, FlightRequest flightRequest) {
         LocalDateTime requestDepartureTime = LocalDateTime.parse(flightRequest.getDepartureTime(), departureTimeFormatter);
         LocalDateTime requestArrivalTime = LocalDateTime.parse(flightRequest.getArrivalTime(), arrivalTimeFormatter);
 
-        boolean flightAlreadyExists = flights.stream()
+        return flights.stream()
                 .anyMatch(flight -> flight.getFrom().equals(flightRequest.getFrom()) &&
                         flight.getTo().equals(flightRequest.getTo()) &&
                         flight.getCarrier().equals(flightRequest.getCarrier()) &&
                         flight.getDepartureTime().equals(requestDepartureTime) &&
                         flight.getArrivalTime().equals(requestArrivalTime));
+    }
+
+    private void validateExistingFlight(FlightRequest flightRequest) {
+        List<Flight> flights = flightInMemoryRepository.getFlights();
+        boolean flightAlreadyExists = checkIfFlightExists(flights, flightRequest);
 
         if (flightAlreadyExists) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Invalid request.");
         }
     }
+
+    public void validateExistingFlightInDatabase(FlightRequest flightRequest) {
+        List<Flight> flights = flightInDatabaseRepository.findAll();
+        boolean flightAlreadyExists = checkIfFlightExists(flights, flightRequest);
+
+        if (flightAlreadyExists) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Invalid request.");
+        }
+    }
+
     private void validateDepartureAirport(FlightRequest flightRequest) {
         String departureAirport = flightRequest.getFrom().getAirport().trim();
         String arrivalAirport = flightRequest.getTo().getAirport().trim();
